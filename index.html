@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bharadwaaja - Week 03</title>
+    <style>
+      body {
+        padding: 40px;
+      }
+    </style>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-xs-12">
+          <label for="title">Title: </label>
+          <input type="text" name="title" id="title" class="form-control" />
+        </div>
+        <div class="col-xs-12 mt-2">
+          <label for="author">Author: </label>
+          <input type="text" name="author" id="author" class="form-control" />
+        </div>
+        <div class="col-xs-12 mt-3">
+          <button
+            class="btn btn-success"
+            type="button"
+            id="send"
+            onclick="sendPost()"
+          >
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <div class="col-xs-12">
+        <h3>Posts:</h3>
+        <div id="list"></div>
+      </div>
+    </div>
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.7/axios.min.js"
+      integrity="sha512-NQfB/bDaB8kaSXF8E77JjhHG5PM6XVRxvHzkZiwl3ddWCEPBa23T76MuWSwAJdMGJnmQqM0VeY9kFszsrBEFrQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+
+    <script>
+      // Function to send a post request
+      function sendPost() {
+        const title = document.getElementById("title").value;
+        const author = document.getElementById("author").value;
+
+        if (!title || !author) {
+          alert("Please enter both Title and Author.");
+          return;
+        }
+
+        const req = { title, author };
+
+        axios
+          .post("http://localhost:3004/posts", req)
+          .then(function (response) {
+            console.log(response);
+            document.getElementById("title").value = "";
+            document.getElementById("author").value = "";
+            document.getElementById("title").focus();
+            getPosts(); // Refresh the list of posts
+          })
+          .catch(function (error) {
+            console.log(error);
+            alert("Error adding post. Make sure the server is running.");
+          });
+      }
+
+      // Function to get posts from JSON server
+      function getPosts() {
+        axios
+          .get("http://localhost:3004/posts") // Fixed URL
+          .then(function (response) {
+            const list = document.getElementById("list");
+            if (response && response.data) {
+              list.innerHTML = ""; // Clear previous content
+              response.data.forEach((item) => {
+                list.innerHTML += `<div class="card mt-2 p-2"><strong>${item.title}</strong> - ${item.author}</div>`;
+              });
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+            alert("Error fetching posts. Make sure the server is running.");
+          });
+      }
+
+      // Fetch posts when the page loads
+      window.onload = getPosts;
+    </script>
+  </body>
+</html>
